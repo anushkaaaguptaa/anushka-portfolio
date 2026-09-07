@@ -1,4 +1,5 @@
 import React from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { WindowManagerProvider, useWindowManager } from './context/WindowManagerContext';
 import { MenuBar } from './components/desktop/MenuBar';
 import { Wallpaper } from './components/desktop/Wallpaper';
@@ -64,6 +65,7 @@ export default function App() {
   return (
     <WindowManagerProvider>
       <DesktopContent />
+      <Analytics />
     </WindowManagerProvider>
   );
 }
