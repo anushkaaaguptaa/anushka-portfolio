@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { WindowFrame } from './WindowFrame';
 import { NotesSectionId } from '../../types';
 import {
@@ -39,59 +39,104 @@ import {
   Camera,
   Terminal,
   Zap,
+  SquarePen,
 } from 'lucide-react';
 import { useWindowManager } from '../../context/WindowManagerContext';
+
+interface NoteItem {
+  id: NotesSectionId;
+  label: string;
+  date: string;
+  snippet: string;
+}
+
+interface NoteGroup {
+  groupName: string;
+  items: NoteItem[];
+}
+
+const NOTE_GROUPS: NoteGroup[] = [
+  {
+    groupName: 'Pinned',
+    items: [
+      {
+        id: 'about',
+        label: '👋 about me',
+        date: '7/1/26',
+        snippet: "hi, i'm anushka — an engineering student interested in AI, problem solving, and building products that people can actually use.",
+      },
+    ],
+  },
+  {
+    groupName: 'Today',
+    items: [
+      {
+        id: 'experience',
+        label: '💼 experience',
+        date: '7/21/26',
+        snippet: 'AI/ML Research Intern @ DTU — audio processing & self-supervised contrastive learning pipeline for infant cry classification.',
+      },
+      {
+        id: 'beyond-the-code',
+        label: '🤝 community',
+        date: '6/26/26',
+        snippet: "there's obviously a lot of code on this website. Karuna NGO volunteer work & personal reflections outside the screen.",
+      },
+    ],
+  },
+  {
+    groupName: 'Previous 7 Days',
+    items: [
+      {
+        id: 'achievements',
+        label: '🏆 hackathons & wins',
+        date: '6/24/26',
+        snippet: "I've always been the kind of person who gets a little too excited about learning something new — scholarships & hackathons.",
+      },
+    ],
+  },
+  {
+    groupName: 'Previous 30 Days',
+    items: [
+      {
+        id: 'projects',
+        label: '🛠️ projects',
+        date: '6/20/26',
+        snippet: 'ResuMate, BharatMat, LegalAIPro — AI-driven tools, civic engagement, and legal technology platforms.',
+      },
+      {
+        id: 'hackathons',
+        label: '👩‍💻 hackathons',
+        date: '6/15/26',
+        snippet: 'i really like the part where an idea goes from “what if...” to “wait, we actually built this.”',
+      },
+    ],
+  },
+  {
+    groupName: 'Older',
+    items: [
+      {
+        id: 'contact',
+        label: '💬 hit me up',
+        date: '6/10/26',
+        snippet: "i genuinely like talking to people — hearing perspectives i haven't considered, stress-testing ideas & grabbing coffee.",
+      },
+    ],
+  },
+];
 
 export const NotesWindow: React.FC = () => {
   const [activeSection, setActiveSection] = useState<NotesSectionId>('about');
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedEmail, setCopiedEmail] = useState(false);
   const { openWindow, openPhotosFolder } = useWindowManager();
+  const contentPaneRef = useRef<HTMLDivElement>(null);
 
-  const sidebarItems: Array<{ id: NotesSectionId; label: string; icon: string; snippet: string }> = [
-    {
-      id: 'about',
-      label: '👋 about me',
-      icon: '👋',
-      snippet: 'CSE-AI student interested in AI, problem solving & product building.',
-    },
-    {
-      id: 'beyond-the-code',
-      label: '🌱 beyond the code',
-      icon: '🌱',
-      snippet: 'Karuna NGO community work & personal reflections outside the screen.',
-    },
-    {
-      id: 'experience',
-      label: '💼 experience',
-      icon: '💼',
-      snippet: 'AI/ML Research Intern at DTU & Karuna NGO Social Work.',
-    },
-    {
-      id: 'achievements',
-      label: '🏆 little wins',
-      icon: '🏆',
-      snippet: 'Scholarships, fellowships, national hackathon awards & receipts.',
-    },
-    {
-      id: 'projects',
-      label: '🛠️ projects',
-      icon: '🛠️',
-      snippet: 'ResuMate, CampusConnect AI, S.A.N.K.A.L.P., BharatMat.',
-    },
-    {
-      id: 'hackathons',
-      label: '👩‍💻 hackathons',
-      icon: '👩‍💻',
-      snippet: 'i really like the part where an idea goes from “what if...” to “wait, we actually built this.”',
-    },
-    {
-      id: 'contact',
-      label: '💬 hit me up',
-      icon: '💬',
-      snippet: 'DMs open on LinkedIn, GitHub, X & Email.',
-    },
-  ];
+  useEffect(() => {
+    if (contentPaneRef.current) {
+      contentPaneRef.current.scrollTop = 0;
+    }
+  }, [activeSection]);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(CONTACT_DATA.links.email);
@@ -99,67 +144,91 @@ export const NotesWindow: React.FC = () => {
     setTimeout(() => setCopiedEmail(false), 2000);
   };
 
-  const filteredItems = sidebarItems.filter(
-    (item) =>
-      item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.snippet.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <WindowFrame id="notes" headerTitle="Notes — Anushka Portfolio">
       <div className="flex h-full w-full overflow-hidden text-sm">
-        {/* Left Sidebar (Notes Folder View) */}
-        <div className="w-64 border-r border-slate-700/50 bg-slate-900/80 flex flex-col backdrop-blur-xl shrink-0">
-          <div className="p-3 border-b border-slate-700/40">
+        {/* Left Sidebar (macOS Notes Sidebar Style) */}
+        <div className="w-64 border-r border-[#2d2d2d] bg-[#1c1c1e] flex flex-col shrink-0 select-none">
+          {/* Top Bar with Compose Icon & Search */}
+          <div className="p-3 border-b border-[#2d2d2d]/60 space-y-2">
+            <div className="flex items-center justify-end px-1">
+              <button
+                title="New Note"
+                className="text-amber-500 hover:text-amber-400 transition-colors p-1 rounded-md hover:bg-[#2c2c2e]"
+              >
+                <SquarePen className="h-4 w-4" />
+              </button>
+            </div>
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+              <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search notes..."
+                placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-md bg-slate-800/90 pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500/50 border border-slate-700/50"
+                className="w-full rounded-lg bg-[#2c2c2e] pl-8 pr-3 py-1 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500/50 border border-slate-700/30"
               />
-            </div>
-            <div className="mt-2.5 flex items-center justify-between px-1 text-[11px] font-medium text-slate-400 uppercase tracking-wider">
-              <span className="flex items-center gap-1">
-                <Folder className="h-3 w-3 text-sky-400" /> Notes Folder
-              </span>
-              <span>{sidebarItems.length} Notes</span>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin">
-            {filteredItems.map((item) => {
-              const isSelected = activeSection === item.id;
+          {/* Grouped Notes List */}
+          <div className="flex-1 overflow-y-auto px-2 py-1 space-y-2 scrollbar-thin">
+            {NOTE_GROUPS.map((group) => {
+              const matchingItems = group.items.filter(
+                (item) =>
+                  item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  item.snippet.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+
+              if (matchingItems.length === 0) return null;
+
               return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveSection(item.id)}
-                  className={`w-full text-left p-2.5 rounded-lg transition-all flex flex-col gap-1 border ${
-                    isSelected
-                      ? 'bg-sky-600/20 border-sky-500/40 text-white shadow-sm'
-                      : 'hover:bg-slate-800/60 border-transparent text-slate-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-xs flex items-center gap-1.5">
-                      <FileText className={`h-3.5 w-3.5 ${isSelected ? 'text-sky-400' : 'text-slate-400'}`} />
-                      {item.label}
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-mono">Note</span>
+                <div key={group.groupName} className="space-y-0.5">
+                  <div className="px-3 pt-2 pb-1 text-[11px] font-semibold text-[#8e8e93]">
+                    {group.groupName}
                   </div>
-                  <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed pl-5">
-                    {item.snippet}
-                  </p>
-                </button>
+                  {matchingItems.map((item) => {
+                    const isSelected = activeSection === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setActiveSection(item.id)}
+                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex flex-col gap-0.5 ${
+                          isSelected
+                            ? 'bg-[#3a301d] text-white shadow-sm'
+                            : 'hover:bg-[#2c2c2e]/70 text-slate-300'
+                        }`}
+                      >
+                        <div className="font-bold text-xs truncate">
+                          {item.label}
+                        </div>
+                        <div className="text-xs truncate flex items-center">
+                          <span
+                            className={`font-normal mr-2 shrink-0 ${
+                              isSelected ? 'text-[#c0a66d]' : 'text-slate-500'
+                            }`}
+                          >
+                            {item.date}
+                          </span>
+                          <span
+                            className={`font-normal truncate ${
+                              isSelected ? 'text-[#ded6c5]' : 'text-slate-400'
+                            }`}
+                          >
+                            {item.snippet}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               );
             })}
           </div>
         </div>
 
         {/* Right Main Content Pane */}
-        <div className="flex-1 overflow-y-auto bg-slate-950/70 p-6 md:p-8 scrollbar-thin">
+        <div ref={contentPaneRef} className="flex-1 overflow-y-auto bg-slate-950/70 p-6 md:p-8 scrollbar-thin">
           {/* SECTION 1: ABOUT ME */}
           {activeSection === 'about' && (
             <div className="max-w-2xl space-y-6">
