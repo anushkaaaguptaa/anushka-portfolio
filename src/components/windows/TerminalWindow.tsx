@@ -30,8 +30,10 @@ export const TerminalWindow: React.FC = () => {
               <p><span className="text-sky-400 font-semibold">User:</span> Anushka Gupta (20 y/o)</p>
               <p><span className="text-sky-400 font-semibold">Degree:</span> Engineering (AI Specialization)</p>
               <p><span className="text-sky-400 font-semibold">Internship:</span> DTU Research Intern</p>
-              <p><span className="text-sky-400 font-semibold">Core Stack:</span> C++, PyTorch, React, TS, FastAPI</p>
-              <p><span className="text-sky-400 font-semibold">Projects:</span> ResuMate, CampusConnect AI, S.A.N.K.A.L.P.</p>
+              <p><span className="text-sky-400 font-semibold">Programming:</span> C++, MySQL, Python</p>
+              <p><span className="text-sky-400 font-semibold">Coursework:</span> Data Structures & Algorithms, Object Oriented Programming, Database Management System, Operating Systems</p>
+              <p><span className="text-sky-400 font-semibold">Focus Areas:</span> Product, Analytics, AI Systems</p>
+              <p><span className="text-sky-400 font-semibold">Projects:</span> ResuMate, BharatMat, LegalAIPro</p>
             </div>
           </div>
           <p className="text-slate-400">Type <span className="text-yellow-400 font-bold">help</span> to list available commands.</p>
