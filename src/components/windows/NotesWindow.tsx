@@ -63,12 +63,6 @@ export const NotesWindow: React.FC = () => {
       snippet: "hi, i'm anushka — an engineering student interested in AI, problem solving, and building products...",
     },
     {
-      id: 'beyond-the-code',
-      label: '🌱 beyond the code',
-      icon: '🌱',
-      snippet: "there's obviously a lot of code on this website. but some of the experiences...",
-    },
-    {
       id: 'experience',
       label: '💼 experience',
       icon: '💼',
@@ -91,6 +85,12 @@ export const NotesWindow: React.FC = () => {
       label: '👩‍💻 hackathons',
       icon: '👩‍💻',
       snippet: 'i really like the part where an idea goes from “what if...” to “wait, we actually built this.”',
+    },
+    {
+      id: 'beyond-the-code',
+      label: '🌱 beyond the code',
+      icon: '🌱',
+      snippet: "there's obviously a lot of code on this website. but some of the experiences...",
     },
     {
       id: 'contact',
@@ -176,7 +176,6 @@ export const NotesWindow: React.FC = () => {
                   <span>Introduction</span>
                 </div>
                 <h1 className="text-2xl font-bold text-white mt-1">👋 about me</h1>
-                <p className="text-xs text-slate-400 mt-1 font-mono">Last edited: Today at 11:32 AM</p>
               </div>
 
               {/* Hero Profile Photo matching reference design */}
@@ -347,11 +346,8 @@ export const NotesWindow: React.FC = () => {
                 <h1 className="text-2xl font-bold text-white mt-1">
                   {BEYOND_THE_CODE_DATA.title}
                 </h1>
-                <p className="text-xs text-slate-300 italic mt-1">
+                <p className="text-xs text-slate-400 mt-1 font-mono">
                   {BEYOND_THE_CODE_DATA.subtitle}
-                </p>
-                <p className="text-[11px] text-slate-400 mt-1.5 font-mono">
-                  Last edited: {BEYOND_THE_CODE_DATA.lastEdited}
                 </p>
               </div>
 
